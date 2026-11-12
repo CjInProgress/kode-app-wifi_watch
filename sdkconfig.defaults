@@ -1,0 +1,34 @@
+# This app's own settings. Everything about the board - flash, PSRAM, cache,
+# the console - arrives from kbsp's sdkconfig.board, which CMakeLists.txt
+# fetches and reads first. Do not copy any of it here.
+
+CONFIG_PARTITION_TABLE_CUSTOM_FILENAME="managed_components/kodediy__kbsp/partitions.csv"
+
+# The role AO_Boot plays, and the safety property the slot model rests on:
+# this firmware never writes otadata, so any reset returns to kodeOS.
+CONFIG_KODEOS_BOOT_ROLE_APP=y
+
+# The console over the USB-C cable: somewhere to watch the app from on the
+# bench.
+CONFIG_KODEOS_CONSOLE=y
+
+# The radio, for its Wi-Fi alone. Wi-Fi Watch listens to frames through the
+# C5's frames service (kode_sys_wifi_frames()) and scans for networks' names
+# (kode_sys_wifi_scan()); both need AO_Radio and the Wi-Fi verbs, which are
+# off in an app by default. WIFI depends on RADIO, and RADIO selects
+# esp-hosted, the link to the C5: ESP_HOSTED_ENABLED must not be switched off.
+CONFIG_KODEOS_RADIO=y
+CONFIG_KODEOS_WIFI=y
+
+# No network: the app opens no socket, and lwIP, mbedTLS and the clients cost
+# about 400 kB of image for nothing.
+CONFIG_KODEOS_NET=n
+
+# No BLE host: the app never uses Bluetooth, and the board file turns the
+# NimBLE lines on.
+CONFIG_BT_ENABLED=n
+
+# The SDK's own log lines are compiled in at every level, and most of them are
+# INFO: a shipped app that will never print them can compile them away, which
+# is well over a hundred kB of format strings.
+# CONFIG_KLOG_MAXIMUM_LEVEL_WARN=y

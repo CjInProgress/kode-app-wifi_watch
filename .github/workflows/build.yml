@@ -1,0 +1,30 @@
+name: build
+
+# Builds the app from a clean checkout on every push and pull request, the way
+# anyone cloning the repository would: the component manager fetches the SDK
+# from the pin in main/idf_component.yml, over HTTPS: the SDK and the C5
+# firmware inside it are public, so the job needs no key.
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: espressif/idf:v6.1
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build
+        run: |
+          . "$IDF_PATH/export.sh"
+          idf.py build
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: app
+          path: build/*.bin
+          if-no-files-found: error
